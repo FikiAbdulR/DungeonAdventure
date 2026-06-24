@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5bf9392755841a44fbf7693c551e63d1, type: 3}
+  m_Name: After_Quest
+  m_EditorClassIdentifier: Assembly-CSharp::interaction_data
+  title: Pedagang
+  interactionType: 0
+  lines:
+  - Apakah mahluk-mahluk itu sudah kau kalahkan ?
+  - Syukurlah kalau begitu, aku berterima kasih kepada mu
+  - Para mahluk itu sering muncul di daerah ini, aku curiga mereka memiliki sarang
+    disekitar sini
+  - 'Kamu berhati-hatilah '
+  action: 1
+  quest: {fileID: 11400000, guid: 5f353e1995fb5cd4ea89c0e4abcbb3d0, type: 2}

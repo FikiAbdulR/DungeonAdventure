@@ -13,10 +13,6 @@ public class quest_manager : MonoBehaviour
     public static event Action<data_quest> OnQuestStarted;
     public static event Action<data_quest> OnQuestCompleted;
     public static event Action<data_quest, quest_objective_progress> OnObjectiveProgress;
-    public List<quest_runtime_data> GetAllActiveQuests()
-    {
-        return activeQuests.Values.ToList();
-    }
 
     private void Awake()
     {
@@ -31,6 +27,11 @@ public class quest_manager : MonoBehaviour
         }
     }
 
+    public List<quest_runtime_data> GetAllActiveQuests()
+    {
+        return activeQuests.Values.ToList();
+    }
+
     public void StartQuest(data_quest quest)
     {
         if (quest == null) return;
@@ -43,34 +44,28 @@ public class quest_manager : MonoBehaviour
         {
             foreach (var obj in runtimeQuest.objectives)
             {
-                switch (obj.type)
+                if (obj.type == QuestObjectiveType.Kill)
                 {
-                    case QuestObjectiveType.Kill:
+                    // Simpan snapshot kill count SAAT quest dimulai sebagai baseline.
+                    // currentAmount TETAP 0 -- progress dihitung relatif dari titik ini,
+                    // bukan langsung diisi dari total lifetime kill.
+                    obj.baselineKillCount = player_statistics.Instance.GetKillCount(obj.typeID);
+                    obj.currentAmount = 0;
 
-                        obj.currentAmount = Mathf.Min(
-                            player_statistics.Instance.GetKillCount(obj.typeID),
-                            obj.requiredAmount
-                        );
-
-                        Debug.Log(
-                            $"Retroactive Progress: {obj.typeID} = {obj.currentAmount}/{obj.requiredAmount}"
-                        );
-
-                        break;
+                    Debug.Log(
+                        $"Retroactive Baseline Set: {obj.typeID} baseline={obj.baselineKillCount}"
+                    );
                 }
             }
         }
 
-        activeQuests.Add(
-            quest.questID,
-            runtimeQuest
-        );
-
+        activeQuests.Add(quest.questID, runtimeQuest);
         OnQuestStarted?.Invoke(quest);
 
-        CheckQuestCompletion(runtimeQuest);
-
         Debug.Log("Quest Started: " + quest.questName);
+
+        // Tidak perlu CheckQuestCompletion() di sini lagi,
+        // karena currentAmount selalu mulai dari 0 saat quest baru dimulai.
     }
 
     public void AddProgress(QuestObjectiveType type, string targetID, int amount = 1)
@@ -85,7 +80,18 @@ public class quest_manager : MonoBehaviour
                 if (obj.typeID != targetID) continue;
                 if (obj.currentAmount >= obj.requiredAmount) continue;
 
-                obj.currentAmount = Mathf.Min(obj.currentAmount + amount, obj.requiredAmount);
+                if (type == QuestObjectiveType.Kill)
+                {
+                    // Hitung progress sebagai selisih dari baseline,
+                    // supaya tidak terpengaruh kill count sebelum quest ini dimulai.
+                    int totalNow = player_statistics.Instance.GetKillCount(obj.typeID);
+                    obj.currentAmount = Mathf.Clamp(totalNow - obj.baselineKillCount, 0, obj.requiredAmount);
+                }
+                else
+                {
+                    obj.currentAmount = Mathf.Min(obj.currentAmount + amount, obj.requiredAmount);
+                }
+
                 changed = true;
 
                 Debug.Log($"{quest.quest.questName} : {obj.currentAmount}/{obj.requiredAmount}");

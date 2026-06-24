@@ -5,8 +5,7 @@ public class player_statistics : MonoBehaviour
 {
     public static player_statistics Instance;
 
-    private Dictionary<string, int> killCounts =
-        new Dictionary<string, int>();
+    private Dictionary<string, int> killCounts = new Dictionary<string, int>();
 
     private void Awake()
     {
@@ -27,16 +26,12 @@ public class player_statistics : MonoBehaviour
             killCounts.Add(enemyTypeID, 0);
 
         killCounts[enemyTypeID]++;
-
         Debug.Log($"Kill Recorded: {enemyTypeID} = {killCounts[enemyTypeID]}");
     }
 
     public int GetKillCount(string enemyTypeID)
     {
-        if (killCounts.TryGetValue(enemyTypeID, out int count))
-            return count;
-
-        return 0;
+        return killCounts.TryGetValue(enemyTypeID, out int count) ? count : 0;
     }
 
     public void ResetData()

@@ -8,6 +8,8 @@ public class quest_objective_progress
     public string typeID;
     public int requiredAmount;
     public int currentAmount;
+
+    public int baselineKillCount;
 }
 
 [Serializable]
@@ -30,8 +32,10 @@ public class quest_runtime_data
                 type = obj.type,
                 typeID = obj.typeID,
                 requiredAmount = obj.requiredAmount,
-                currentAmount = 0
-            });
+                currentAmount = 0,
+                baselineKillCount = 0
+            }
+            );
         }
     }
 }
